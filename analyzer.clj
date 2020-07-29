@@ -11,6 +11,14 @@
   (if (re-find #"[^\w]" word) true false)
   )
 
+(defn duplicates [words]
+  (->> words
+       frequencies
+       (filter #(< 1 (last %)))
+       keys
+       ))
+
+
 (defn sorted? [words]
   (= words (sort words)))
 
@@ -19,22 +27,23 @@
    :max-length (apply max (map count words))
    :min-length (apply min (map count words))
    :distinct (apply distinct? words)
-   :single-words (every? single-word words)
-   :special-chars (some special-chars words)
-   :empty-lines (some empty? words)
+   :single-words (count (filter single-word words))
+   :special-chars (count (filter special-chars words))
+   :empty-lines (count (filter empty? words))
    :sorted (sorted? words)
+   :dups (duplicates words)
    }
   )
 
 (defn quality [stats]
-  (let [fns [#(if (:sorted %) 1 0) 
-             #(if (:empty-lines %)  -1 0)
-             #(if (:single-words %) 1 0)
-             #(if (:special-chars %) -1 0)
-             #(if (:distinct %) 1 0)
-             #(if (> 100 (:count %)) 1 0)
-             #(if (> 12 (:max-length %)) 1 -1)
-             #(if (< 2 (:min-length %)) 1 -1)]
+  (let [fns [#(if (:sorted %) 5 0) 
+             #(* -10 (:empty-lines %) )
+                                        ;             #(:single-words %) 
+             #(* -1 (:special-chars %))
+             #(if (:distinct %) (:sigle-words %)  0)
+                                        ;             #(:count %)
+             #(if (> 12 (:max-length %)) 5 0)
+             #(if (< 2 (:min-length %)) 5 0)]
         vals (map #(or (% stats) 0) fns)        
         ]
     (reduce + vals)
@@ -43,26 +52,33 @@
 
 
 
-(defn analyze-file [file]
-  (let [text (slurp file)
-        words (into [] (.split  text "\n"))
-        stats (stats words)
-        ext (assoc stats :file file
-                   :quality (quality stats))        
-        ]
-    ext)
-  )
+  (defn analyze-file [file]
+    (let [text (slurp file)
+          words (into [] (.split  text "\n"))
+          stats (stats words)
+          ext (assoc stats :file file
+                     :quality (quality stats))        
+          ]
+      ext)
+    )
 
-(defn md-link [stat]
-  (str "[" (:file stat)"]("(:file stat) ")"))
+  (defn md-link [stat]
+    (str "[" (:file stat)"]("(:file stat) ")"))
+
+
+  (defn yn [b] (if b "yes" "no"))
 
 
 (defn file-stats-text [stats]
   (str
    "## " (md-link stats) " \n"
-   "- quality : " (:quality stats) "\n"
-   "- count : " (:count stats) "\n"
-   "- sorted : " (if (:sorted stats) "yes" "no" ) "\n"
+   "- quality     : " (:quality stats) "\n"
+   "- count       : " (:count stats) "\n"
+   "- sorted      : " (yn (:sorted stats)) "\n"
+   "- distint     : " (yn (:distinct stats)) "\n"
+   "- one word    : " (:single-words stats) "\n"
+   "- special char: " (:special-chars stats) "\n"
+   "- dups        : " (count (:dups stats)) " " (:dups stats) "\n" 
    "\n"
    )
   )
@@ -72,12 +88,15 @@
         best  (last (sort-by :quality stats))
         ]
     (str
-     "# Names index \n"
+     "# General stats \n\n"
      " - Total lists : " (count stats) "\n"
      " - Total names : " (reduce + (map :count stats)) "\n"
-     " - Largest list : " (md-link largest) " - " (:count largest) " total \n"
-     " - Best quality : " (md-link best) "- " (:quality best) " score \n" 
-     (apply str (map file-stats-text stats)))))
+     " - Largest list ("(:count largest)") : " (md-link largest) "\n"
+     " - Best quality ("(:quality best)") : " (md-link best) "\n\n"
+     "## [mdrobulis/Naming](https://github.com/mdrobulis/Naming) index \n\n"
+     (apply str (map file-stats-text stats))
+     "\n\n##  "
+     )))
 
 
 
@@ -103,18 +122,15 @@
 
 (defn print-edn-index [stats]
   (println "Printing index.edn ...")
-  (spit "index.edn" (str stats))
+  (spit "index.edn" (with-out-str  (clojure.pprint/pprint stats *out*  )))
   )
 
 
+(defn index! []
+  (->> "." dir-files get-file-stats
+       (sort-by :quality )
+       reverse
+       ((juxt print-markdown-index print-json-index print-edn-index ) )))
 
-                   (defn index! []
-                     (-> "." dir-files get-file-stats print-markdown-index))
-
-
-
-
-
-
-                   (index!)
+(index!)
 
