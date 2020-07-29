@@ -26,6 +26,7 @@
   {:count (count words)
    :max-length (apply max (map count words))
    :min-length (apply min (map count words))
+   :avg-length (/ (apply + (map count words))  (count words) 1.0 )
    :distinct (apply distinct? words)
    :single-words (count (filter single-word words))
    :special-chars (count (filter special-chars words))
@@ -75,9 +76,12 @@
    "- quality     : " (:quality stats) "\n"
    "- count       : " (:count stats) "\n"
    "- sorted      : " (yn (:sorted stats)) "\n"
-   "- distint     : " (yn (:distinct stats)) "\n"
+   "- distinct    : " (yn (:distinct stats)) "\n"
    "- one word    : " (:single-words stats) "\n"
    "- special char: " (:special-chars stats) "\n"
+   "- empty-lines : " (:empty-lines stats) "\n"
+   "- max-length  : " (:max-length stats) "\n"
+   "- avg-length  : " (:avg-length stats) "\n"
    "- dups        : " (count (:dups stats)) " " (:dups stats) "\n" 
    "\n"
    )
