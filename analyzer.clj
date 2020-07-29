@@ -22,19 +22,49 @@
 (defn sorted? [words]
   (= words (sort words)))
 
+(defn- var-from-sums
+  [ss s cnt]
+  (when (<= cnt 0)
+    (throw (ex-info "Most have one or more samples to compute variance." {:causes #{:div-by-zero :bad-args}})))
+  (double (/ (- ss (/ (* s s) cnt)) cnt)))
+
+(defn calculate-variance3
+  [sample]
+  (let [tallies (reduce 
+                 (fn [tallies n] 
+                   {:sumsq (+ (:sumsq tallies) (* n n)) 
+                    :sum   (+ (:sum   tallies) n)})
+                 {:sumsq 0 :sum 0} 
+                 sample)]
+    (var-from-sums (:sumsq tallies) (:sum tallies) (count sample))))
+
+
 (defn stats [words]
-  {:count (count words)
-   :max-length (apply max (map count words))
-   :min-length (apply min (map count words))
-   :avg-length (/ (apply + (map count words))  (count words) 1.0 )
-   :distinct (apply distinct? words)
-   :single-words (count (filter single-word words))
-   :special-chars (count (filter special-chars words))
-   :empty-lines (count (filter empty? words))
-   :sorted (sorted? words)
-   :dups (duplicates words)
-   }
-  )
+  (let [init {:count (count words)
+              :max-length (apply max (map count words))
+              :min-length (apply min (map count words))
+              :avg-length (/ (apply + (map count words))  (count words) 1.0 )
+              :distinct (apply distinct? words)
+              :single-words (count (filter single-word words))              
+              :special-chars (count (filter special-chars words))
+              :empty-lines (count (filter empty? words))
+              :sorted (sorted? words)
+              :dups (duplicates words)
+              }
+        ]
+    (-> init
+        (assoc :mul-words (- (:count init) (:single-words init)))
+        (assoc :dup-count (count (:dups init)))
+        (assoc :variance  (calculate-variance3 (map count words)))
+        #_(assoc :shit-ratio (/ (* 10000 (+ ((juxt :mul-words
+                                                   :empty-lines
+                                                   :special-chars                                                                                 :dup-count
+                                                   ) init))                                               
+                                   )
+                                (:count init)
+                                ))
+        )
+    ))
 
 (defn quality [stats]
   (let [fns [#(if (:sorted %) 5 0) 
@@ -82,6 +112,7 @@
    "- empty-lines : " (:empty-lines stats) "\n"
    "- max-length  : " (:max-length stats) "\n"
    "- avg-length  : " (:avg-length stats) "\n"
+   "- variance    : " (:variance stats) "\n"
    "- dups        : " (count (:dups stats)) " " (:dups stats) "\n" 
    "\n"
    )
