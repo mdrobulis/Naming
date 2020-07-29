@@ -111,6 +111,7 @@
    "- special char: " (:special-chars stats) "\n"
    "- empty-lines : " (:empty-lines stats) "\n"
    "- max-length  : " (:max-length stats) "\n"
+   "- min-length  : " (:min-length stats) "\n"
    "- avg-length  : " (:avg-length stats) "\n"
    "- variance    : " (:variance stats) "\n"
    "- dups        : " (count (:dups stats)) " " (:dups stats) "\n" 
