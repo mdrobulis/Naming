@@ -83,15 +83,16 @@
 
 
 
-  (defn analyze-file [file]
-    (let [text (slurp file)
-          words (into [] (.split  text "\n"))
-          stats (stats words)
-          ext (assoc stats :file file
-                     :quality (quality stats))        
-          ]
-      ext)
-    )
+(defn analyze-file [file]
+                                        ;(println file)
+  (let [text (slurp file)
+        words (into [] (.split  text "\n"))
+        stats (stats words)
+        ext (assoc stats :file file
+                   :quality (quality stats))        
+        ]
+    ext)
+  )
 
   (defn md-link [stat]
     (str "[" (:file stat)"]("(:file stat) ")"))
@@ -146,21 +147,22 @@
   )
 
 (defn get-file-stats [files]
-   (map analyze-file files))
+  (println "Analyzing...")
+  ;; pmap is way slower for small dataset
+  (time (map analyze-file files)))
 
 (defn print-markdown-index [stats]
   (println "Printing index.md...")
   (spit "index.md" (markdown-stats-text stats))) 
 
 (defn print-json-index [stats]
-(println "Printing index.json ...")
-(spit "index.json" (json/generate-string stats)))
+  (println "Printing index.json ...")
+  (spit "index.json" (json/generate-string stats {:pretty true} )))
 
 (defn print-edn-index [stats]
   (println "Printing index.edn ...")
   (spit "index.edn" (with-out-str  (clojure.pprint/pprint stats *out*  )))
   )
-
 
 (defn index! []
   (->> "." dir-files get-file-stats
