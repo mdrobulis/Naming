@@ -32,7 +32,7 @@
   - [ ] Cocktail drinks
   - [ ] Alcohol types
   
- - Colors
+- Colors
   - [ ] Simple common color names
   - [x] [Web color names EN](colors/web-color-names.csv)
   
@@ -63,15 +63,15 @@
 
 
 - Nature
- - [x] Fish names
- - [x] Mamal names
- - [x] Flower names
- - [ ] Tree names
+  - [x] Fish names
+  - [x] Mamal names
+  - [x] Flower names
+  - [ ] Tree names
 
 - Peoples Names
- - [ ] English Male Names
- - [ ] English Female Names
- - [ ] Lithuanian Male Names
- - [ ] Lithuanian Female Names
- - [ ] Spanish Male Names
- - [ ] Spanish Female Names
+  - [ ] English Male Names
+  - [ ] English Female Names
+  - [ ] Lithuanian Male Names
+  - [ ] Lithuanian Female Names
+  - [ ] Spanish Male Names
+  - [ ] Spanish Female Names
