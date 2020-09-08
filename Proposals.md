@@ -14,23 +14,23 @@
   
   
 - Culture
- - [ ] Movies
+  - [ ] Movies
     - [x] StarWars Characters
     - [x] StarWars Planets
- - [ ] Actors
- - [ ] Scientists
+  - [ ] Actors
+  - [ ] Scientists
     - [ ] Physics
     - [ ] Chemistry
     - [ ] Math
     - [ ] ...
- - [ ] Singers
- - [x] Greek Gods
- - [x] Roman Gods
- - [x] Germanic Gods
- - [x] Bible names
- - [ ] Bible books
- - [ ] Cocktail drinks
- - [ ] Alcohol types
+  - [ ] Singers
+  - [x] Greek Gods
+  - [x] Roman Gods
+  - [x] Germanic Gods
+  - [x] Bible names
+  - [ ] Bible books
+  - [ ] Cocktail drinks
+  - [ ] Alcohol types
   
  - Colors
   - [ ] Simple common color names
